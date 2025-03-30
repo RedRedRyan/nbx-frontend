@@ -13,11 +13,11 @@ export default function Home() {
             <div className="flex flex-col justify-center space-y-4">
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
-                  Invest in Africa&apos;s Future
+                  Invest in Kenya&apos;s Future
                 </h1>
                 <p className="max-w-[600px] text-muted-foreground md:text-xl">
                   The first tokenized stock exchange for Small and Medium Enterprises. Invest, trade, and grow with
-                  Africa&apos;s most promising businesses.
+                  Kenya&apos;s most promising businesses.
                 </p>
               </div>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
@@ -36,19 +36,19 @@ export default function Home() {
             <div className="flex items-center justify-center">
               <div className="relative h-[350px] w-[350px] rounded-full bg-muted p-4">
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <LineChart className="h-40 w-40 text-primary" />
+                  <LineChart className="h-40 w-40 text-[green]" />
                 </div>
                 <div className="absolute top-10 left-0 flex h-20 w-20 items-center justify-center rounded-full bg-background shadow-lg">
-                  <Building className="h-10 w-10 text-primary" />
+                  <Building className="h-10 w-10 text-[gold]" />
                 </div>
                 <div className="absolute bottom-10 left-0 flex h-20 w-20 items-center justify-center rounded-full bg-background shadow-lg">
-                  <Users className="h-10 w-10 text-primary" />
+                  <Users className="h-10 w-10 text-[gold]" />
                 </div>
                 <div className="absolute top-10 right-0 flex h-20 w-20 items-center justify-center rounded-full bg-background shadow-lg">
-                  <BarChart3 className="h-10 w-10 text-primary" />
+                  <BarChart3 className="h-10 w-10 text-[gold]" />
                 </div>
                 <div className="absolute bottom-10 right-0 flex h-20 w-20 items-center justify-center rounded-full bg-background shadow-lg">
-                  <Shield className="h-10 w-10 text-primary" />
+                  <Shield className="h-10 w-10 text-[gold]" />
                 </div>
               </div>
             </div>

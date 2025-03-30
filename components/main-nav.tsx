@@ -32,10 +32,10 @@ export function MainNav() {
   const pathname = usePathname()
 
   return (
-    <div className="mr-4 flex">
+    <div className="mr-4 flex items-center space-x-4 lg:space-x-6 justify-center py-3">
       <Link href="/" className="mr-6 flex items-center space-x-2">
-        <Users className="h-6 w-6 text-primary" />
-        <span className="hidden font-bold sm:inline-block">SME Exchange</span>
+        <img src='/image.png' alt="Nairobi icons created by surang - Flaticon" height="64" width="64" className="ml-10" /> 
+        <span className="hidden font-bold sm:inline-block">NBX</span>
       </Link>
       <nav className="flex items-center space-x-6 text-sm font-medium">
         {mainNavItems.map((item) => (

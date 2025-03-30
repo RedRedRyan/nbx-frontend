@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
-// Mock company data
+// Mock company data to fetch from hedera
 const company = {
   id: 1,
   name: "TechInnovate Solutions",
