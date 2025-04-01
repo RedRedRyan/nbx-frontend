@@ -12,7 +12,6 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata = {
   title: "Nairobi Block Exchange",
   description: "A tokenized stock exchange for Small and Medium Enterprises",
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({

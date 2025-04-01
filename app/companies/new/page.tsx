@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { ChevronRight } from "lucide-react"
+import { Check, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 
 export default function NewListingPage() {
   const [step, setStep] = useState(1)
+  const stepRef = useRef<HTMLDivElement>(null)
 
   const handleNext = () => {
     setStep(step + 1)
@@ -20,6 +21,12 @@ export default function NewListingPage() {
   const handleBack = () => {
     setStep(step - 1)
   }
+
+  useEffect(() => {
+    if (stepRef.current) {
+      stepRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [step])
 
   return (
     <div className="container py-6">
@@ -34,25 +41,25 @@ export default function NewListingPage() {
             <div
               className={`flex h-10 w-10 items-center justify-center rounded-full ${step >= 1 ? "bg-primary text-primary-foreground" : "border bg-background"}`}
             >
-              1
+              {step > 1 ? <Check className="h-5 w-5" /> : "1"}
             </div>
             <div className={`mx-2 h-1 w-16 ${step >= 2 ? "bg-primary" : "bg-muted"}`} />
             <div
               className={`flex h-10 w-10 items-center justify-center rounded-full ${step >= 2 ? "bg-primary text-primary-foreground" : "border bg-background"}`}
             >
-              2
+              {step > 2 ? <Check className="h-5 w-5" /> : "2"}
             </div>
             <div className={`mx-2 h-1 w-16 ${step >= 3 ? "bg-primary" : "bg-muted"}`} />
             <div
               className={`flex h-10 w-10 items-center justify-center rounded-full ${step >= 3 ? "bg-primary text-primary-foreground" : "border bg-background"}`}
             >
-              3
+              {step > 3 ? <Check className="h-5 w-5" /> : "3"}
             </div>
             <div className={`mx-2 h-1 w-16 ${step >= 4 ? "bg-primary" : "bg-muted"}`} />
             <div
               className={`flex h-10 w-10 items-center justify-center rounded-full ${step >= 4 ? "bg-primary text-primary-foreground" : "border bg-background"}`}
             >
-              4
+              {step > 4 ? <Check className="h-5 w-5" /> : "4"}
             </div>
           </div>
         </div>
@@ -64,7 +71,7 @@ export default function NewListingPage() {
         </div>
       </div>
 
-      <Card className="mb-6">
+      <Card className="mb-6" ref={stepRef}>
         {step === 1 && (
           <>
             <CardHeader>
@@ -307,4 +314,3 @@ export default function NewListingPage() {
     </div>
   )
 }
-

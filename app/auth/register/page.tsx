@@ -25,6 +25,22 @@ export default function RegisterPage() {
     setStep(step - 1)
   }
 
+  // Function to determine the redirect path based on user type
+  const getRedirectPath = () => {
+    switch (selectedType) {
+      case "investor":
+        return "/portfolio"
+      case "institution":
+        return "/institution-dashboard"
+      case "company":
+        return "/company-dashboard"
+      case "regulator":
+        return "/regulator-dashboard"
+      default:
+        return "/dashboard"
+    }
+  }
+
   const renderUserTypeIcon = (type: string) => {
     switch (type) {
       case "investor":
@@ -225,106 +241,181 @@ export default function RegisterPage() {
             <div className="space-y-6">
               <div className="rounded-lg border bg-card p-6">
                 <h3 className="mb-4 text-lg font-medium">KYC/AML Verification</h3>
-                <Tabs defaultValue="id" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="id">ID Verification</TabsTrigger>
-                    <TabsTrigger value="address">Address Proof</TabsTrigger>
-                    <TabsTrigger value="additional">Additional Info</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="id" className="space-y-4 pt-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="id-type">ID Type</Label>
-                      <select
-                        id="id-type"
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <option value="national-id">National ID</option>
-                        <option value="passport">Passport</option>
-                        <option value="drivers-license">Driver's License</option>
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="id-number">ID Number</Label>
-                      <Input id="id-number" placeholder="Enter your ID number" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="id-front">Upload ID Front</Label>
-                      <Input id="id-front" type="file" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="id-back">Upload ID Back</Label>
-                      <Input id="id-back" type="file" />
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="address" className="space-y-4 pt-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="address-line1">Address Line 1</Label>
-                      <Input id="address-line1" placeholder="Street address" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="address-line2">Address Line 2 (Optional)</Label>
-                      <Input id="address-line2" placeholder="Apartment, suite, etc." />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
+                {selectedType !== "company" ? (
+                  <Tabs defaultValue="id" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3">
+                      <TabsTrigger value="id">ID Verification</TabsTrigger>
+                      <TabsTrigger value="address">Address Proof</TabsTrigger>
+                      <TabsTrigger value="additional">Additional Info</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="id" className="space-y-4 pt-4">
                       <div className="space-y-2">
-                        <Label htmlFor="city">City</Label>
-                        <Input id="city" placeholder="City" />
+                        <Label htmlFor="id-type">ID Type</Label>
+                        <select
+                          id="id-type"
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <option value="national-id">National ID</option>
+                          <option value="passport">Passport</option>
+                          <option value="drivers-license">Driver's License</option>
+                        </select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="postal-code">Postal Code</Label>
-                        <Input id="postal-code" placeholder="Postal code" />
+                        <Label htmlFor="id-number">ID Number</Label>
+                        <Input id="id-number" placeholder="Enter your ID number" />
                       </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="country">Country</Label>
-                      <select
-                        id="country"
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <option value="kenya">Kenya</option>
-                        <option value="uganda">Uganda</option>
-                        <option value="tanzania">Tanzania</option>
-                        <option value="rwanda">Rwanda</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="proof-address">Upload Proof of Address</Label>
-                      <Input id="proof-address" type="file" />
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="additional" className="space-y-4 pt-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="occupation">Occupation</Label>
-                      <Input id="occupation" placeholder="Your occupation" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="source-of-funds">Source of Funds</Label>
-                      <select
-                        id="source-of-funds"
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <option value="salary">Salary/Employment</option>
-                        <option value="business">Business Income</option>
-                        <option value="investment">Investment Returns</option>
-                        <option value="inheritance">Inheritance</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="investment-purpose">Investment Purpose</Label>
-                      <select
-                        id="investment-purpose"
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <option value="growth">Long-term Growth</option>
-                        <option value="income">Regular Income</option>
-                        <option value="trading">Active Trading</option>
-                        <option value="diversification">Portfolio Diversification</option>
-                      </select>
-                    </div>
-                  </TabsContent>
-                </Tabs>
+                      <div className="space-y-2">
+                        <Label htmlFor="id-front">Upload ID Front</Label>
+                        <Input id="id-front" type="file" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="id-back">Upload ID Back</Label>
+                        <Input id="id-back" type="file" />
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="address" className="space-y-4 pt-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="address-line1">Address Line 1</Label>
+                        <Input id="address-line1" placeholder="Street address" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="address-line2">Address Line 2 (Optional)</Label>
+                        <Input id="address-line2" placeholder="Apartment, suite, etc." />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="city">City</Label>
+                          <Input id="city" placeholder="City" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="postal-code">Postal Code</Label>
+                          <Input id="postal-code" placeholder="Postal code" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="country">Country</Label>
+                        <select
+                          id="country"
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <option value="kenya">Kenya</option>
+                          <option value="uganda">Uganda</option>
+                          <option value="tanzania">Tanzania</option>
+                          <option value="rwanda">Rwanda</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="proof-address">Upload Proof of Address</Label>
+                        <Input id="proof-address" type="file" />
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="additional" className="space-y-4 pt-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="occupation">Occupation</Label>
+                        <Input id="occupation" placeholder="Your occupation" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="source-of-funds">Source of Funds</Label>
+                        <select
+                          id="source-of-funds"
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <option value="salary">Salary/Employment</option>
+                          <option value="business">Business Income</option>
+                          <option value="investment">Investment Returns</option>
+                          <option value="inheritance">Inheritance</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="investment-purpose">Investment Purpose</Label>
+                        <select
+                          id="investment-purpose"
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <option value="growth">Long-term Growth</option>
+                          <option value="income">Regular Income</option>
+                          <option value="trading">Active Trading</option>
+                          <option value="diversification">Portfolio Diversification</option>
+                        </select>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                ) : (
+                  <Tabs defaultValue="company-docs" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3">
+                      <TabsTrigger value="company-docs">Company Documents</TabsTrigger>
+                      <TabsTrigger value="beneficial-owners">Beneficial Owners</TabsTrigger>
+                      <TabsTrigger value="compliance">Compliance</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="company-docs" className="space-y-4 pt-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="certificate-incorporation">Certificate of Incorporation</Label>
+                        <Input id="certificate-incorporation" type="file" />
+                        <p className="text-xs text-muted-foreground mt-1">Upload the official certificate issued by the registrar of companies</p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="business-registration">Business Registration Certificate</Label>
+                        <Input id="business-registration" type="file" />
+                        <p className="text-xs text-muted-foreground mt-1">Upload the official business registration certificate</p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="company-articles">Articles of Association</Label>
+                        <Input id="company-articles" type="file" />
+                        <p className="text-xs text-muted-foreground mt-1">Upload your company's articles of association document</p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="tax-compliance">Tax Compliance Certificate</Label>
+                        <Input id="tax-compliance" type="file" />
+                        <p className="text-xs text-muted-foreground mt-1">Upload a recent tax compliance certificate</p>
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="beneficial-owners" className="space-y-4 pt-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="shareholders-register">Register of Shareholders</Label>
+                        <Input id="shareholders-register" type="file" />
+                        <p className="text-xs text-muted-foreground mt-1">Upload official register showing all shareholders with greater than 10% ownership</p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="director-ids">Directors' ID Documents</Label>
+                        <Input id="director-ids" type="file" multiple />
+                        <p className="text-xs text-muted-foreground mt-1">Upload ID documents for all company directors (multiple files allowed)</p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="ownership-structure">Ownership Structure Chart</Label>
+                        <Input id="ownership-structure" type="file" />
+                        <p className="text-xs text-muted-foreground mt-1">Upload a chart showing your company's ownership structure</p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="beneficial-declaration">Beneficial Owners Declaration</Label>
+                        <Input id="beneficial-declaration" type="file" />
+                        <p className="text-xs text-muted-foreground mt-1">Upload signed declaration of all beneficial owners</p>
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="compliance" className="space-y-4 pt-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="company-address">Registered Office Address</Label>
+                        <Input id="company-address" placeholder="Company's registered address" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="business-license">Business License/Permit</Label>
+                        <Input id="business-license" type="file" />
+                        <p className="text-xs text-muted-foreground mt-1">Upload applicable business licenses or permits</p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="financial-statements">Audited Financial Statements</Label>
+                        <Input id="financial-statements" type="file" />
+                        <p className="text-xs text-muted-foreground mt-1">Upload most recent audited financial statements</p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="compliance-policy">AML Compliance Policy</Label>
+                        <Input id="compliance-policy" type="file" />
+                        <p className="text-xs text-muted-foreground mt-1">Upload your company's AML/compliance policy (if available)</p>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                )}
               </div>
             </div>
           )}
@@ -344,7 +435,7 @@ export default function RegisterPage() {
               Continue <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (
-            <Link href="/dashboard">
+            <Link href={getRedirectPath()}>
               <Button>Complete Registration</Button>
             </Link>
           )}
@@ -353,4 +444,3 @@ export default function RegisterPage() {
     </div>
   )
 }
-

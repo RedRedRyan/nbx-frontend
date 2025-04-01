@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
+import { HederaWalletConnect } from "@/components/hedera-wallet-connect"
 
 export function UserNav() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -22,6 +23,7 @@ export function UserNav() {
   if (!isLoggedIn) {
     return (
       <div className="flex items-center gap-4">
+        <HederaWalletConnect />
         <Link href="/auth/login">
           <Button variant="outline">Log in</Button>
         </Link>
@@ -41,8 +43,7 @@ export function UserNav() {
       <Link href="/wallet">
         <Button variant="outline" className="flex items-center gap-2">
           <Wallet className="h-4 w-4" />
-          {/*ToDo: Fetch Balance from Hedera Hashgraph*/}
-         <span>$2,450.00</span>
+          <span>$2,450.00</span>
         </Button>
       </Link>
       <DropdownMenu>

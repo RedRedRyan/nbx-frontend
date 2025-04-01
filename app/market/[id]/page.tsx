@@ -2,6 +2,12 @@
 
 import { useState } from "react"
 import { ArrowDown, ArrowUp, Building, Download, FileText, LineChart, Share2, Users } from "lucide-react"
+import * as RechartsPrimitive from "recharts"
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -113,12 +119,57 @@ export default function CompanyDetailPage({ params }: { params: { id: string } }
             </CardHeader>
             <CardContent>
               <div className="h-[300px] w-full rounded-md border p-4">
-                <div className="flex h-full w-full items-center justify-center">
-                  <LineChart className="h-16 w-16 text-muted-foreground" />
-                  <span className="ml-2 text-sm text-muted-foreground">
-                    Interactive price chart will be displayed here
-                  </span>
-                </div>
+                <ChartContainer
+                  config={{
+                    price: { color: "#4f46e5" },
+                  }}
+                >
+                  <RechartsPrimitive.ResponsiveContainer width="100%" height={260}>
+                    <RechartsPrimitive.LineChart
+                      data={company.priceHistory}
+                      margin={{ top: 10, right: 10, bottom: 20, left: 20 }}
+                    >
+                      <RechartsPrimitive.CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <RechartsPrimitive.XAxis
+                        dataKey="date"
+                        tickLine={false}
+                        axisLine={false}
+                        padding={{ left: 10, right: 10 }}
+                      />
+                      <RechartsPrimitive.YAxis
+                        tickFormatter={(value) => `$${value}`}
+                        tickLine={false}
+                        axisLine={false}
+                        domain={['auto', 'auto']}
+                      />
+                      <RechartsPrimitive.Line
+                        type="monotone"
+                        dataKey="price"
+                        strokeWidth={2}
+                        dot={{ r: 1 }}
+                        activeDot={{ r: 4 }}
+                      />
+                      <RechartsPrimitive.Area
+                        type="monotone"
+                        dataKey="price"
+                        fill="url(#colorPrice)"
+                        strokeWidth={0}
+                        fillOpacity={0.1}
+                      />
+                      <RechartsPrimitive.Tooltip
+                        formatter={(value) => [`$${value}`, 'Price']}
+                        labelFormatter={(label) => `${label}`}
+                        content={<ChartTooltipContent />}
+                      />
+                      <defs>
+                        <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="var(--color-price)" stopOpacity={0.5} />
+                          <stop offset="95%" stopColor="var(--color-price)" stopOpacity={0.1} />
+                        </linearGradient>
+                      </defs>
+                    </RechartsPrimitive.LineChart>
+                  </RechartsPrimitive.ResponsiveContainer>
+                </ChartContainer>
               </div>
             </CardContent>
           </Card>
