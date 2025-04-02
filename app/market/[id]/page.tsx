@@ -1,11 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowDown, ArrowUp, Building, Download, FileText, LineChart, Share2, Users } from "lucide-react"
+import { ArrowDown, ArrowUp, Building, Download, FileText, Share2, Users } from "lucide-react"
 import * as RechartsPrimitive from "recharts"
 import {
   ChartContainer,
-  ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { Badge } from "@/components/ui/badge"
@@ -62,9 +61,9 @@ const company = {
 }
 
 export default function CompanyDetailPage({ params }: { params: { id: string } }) {
-  const [orderType, setOrderType] = useState<"buy" | "sell">("buy")
   const [quantity, setQuantity] = useState("100")
   const [orderPrice, setOrderPrice] = useState(company.price.toString())
+  const [orderType, setOrderType] = useState<"buy" | "sell">("buy")
 
   const totalCost = Number.parseFloat(quantity) * Number.parseFloat(orderPrice)
 
@@ -118,13 +117,14 @@ export default function CompanyDetailPage({ params }: { params: { id: string } }
               </div>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px] w-full rounded-md border p-4">
+              <div className="w-full rounded-md border p-4">
                 <ChartContainer
                   config={{
                     price: { color: "#4f46e5" },
                   }}
                 >
-                  <RechartsPrimitive.ResponsiveContainer width="100%" height={260}>
+                  <RechartsPrimitive.ResponsiveContainer width="100%" height="100%">
+
                     <RechartsPrimitive.LineChart
                       data={company.priceHistory}
                       margin={{ top: 10, right: 10, bottom: 20, left: 20 }}
@@ -141,6 +141,7 @@ export default function CompanyDetailPage({ params }: { params: { id: string } }
                         tickLine={false}
                         axisLine={false}
                         domain={['auto', 'auto']}
+                        width={60}
                       />
                       <RechartsPrimitive.Line
                         type="monotone"

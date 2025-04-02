@@ -7,10 +7,10 @@ const APP_METADATA = {
   name: "SME Stock Exchange",
   description: "A tokenized stock exchange for Small and Medium Enterprises",
   icons: ['/image.png'],
-  url:"https://nbx-block-exchange.vercel.app/",
+  url:"localhost:3000"
 };
 
-const PROJECT_ID = process.env.NEXT_PUBLIC_HASHCONNECT_PROJECT_ID;
+const PROJECT_ID = process.env.NEXT_PUBLIC_HASHCONNECT_PROJECT_ID|| "c5b19adcab7d431cbe2c4c07e7356a4c";
 
 class HederaService {
   private static instance: HederaService;
