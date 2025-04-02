@@ -10,7 +10,7 @@ const APP_METADATA = {
   url:"https://nbx-block-exchange.vercel.app/",
 };
 
-const PROJECT_ID = process.env.NEXT_PUBLIC_HASHCONNECT_PROJECT_ID || "c5b19adcab7d431cbe2c4c07e7356a4c";
+const PROJECT_ID = process.env.NEXT_PUBLIC_HASHCONNECT_PROJECT_ID;
 
 class HederaService {
   private static instance: HederaService;
