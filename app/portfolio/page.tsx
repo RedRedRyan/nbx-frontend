@@ -315,10 +315,10 @@ export default function PortfolioPage() {
       <div className="mb-6 flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Portfolio</h1>
-          <p className="text-muted-foreground">Welcome back, John Doe</p>
+          <p className="text-muted-foreground">Welcome back, Jude Tulel</p>
         </div>
         <div className="flex items-center gap-2">
-          <Tabs defaultValue={userType} onValueChange={setUserType} className="w-[400px]">
+          <Tabs defaultValue={userType} onValueChange={(value: string) => setUserType(value as "investor" | "institution" | "company" | "regulator")} className="w-[400px]">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="investor">Investor</TabsTrigger>
               <TabsTrigger value="institution">Institution</TabsTrigger>
@@ -632,7 +632,7 @@ export default function PortfolioPage() {
 
           <TabsContent value="governance">
             <div className="space-y-6">
-              <Tabs value={activeVoteTab} onValueChange={setActiveVoteTab}>
+              <Tabs value={activeVoteTab} onValueChange={(value) => setActiveVoteTab(value as "active" | "closed" | "upcoming")}>
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-2xl font-bold tracking-tight">Governance Voting</h2>
                   <TabsList>

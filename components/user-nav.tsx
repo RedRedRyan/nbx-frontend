@@ -24,13 +24,7 @@ export function UserNav() {
     return (
       <div className="flex items-center gap-4">
         <HederaWalletConnect />
-        <Link href="/auth/login">
-          <Button variant="outline">Log in</Button>
-        </Link>
-        <Link href="/auth/register">
-          <Button>Sign up</Button>
-        </Link>
-      </div>
+         </div>
     )
   }
 

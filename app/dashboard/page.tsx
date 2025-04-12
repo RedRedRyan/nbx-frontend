@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState,useEffect } from "react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -71,8 +71,31 @@ const companyData = {
   ]
 }
 
+interface Proposal {
+  id: string
+  title: string
+  status: string
+  endDate: string
+  votesFor: number
+  votesAgainst: number
+  description: string
+}
+
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState("overview")
+  const [activeTab, setActiveTab] = useState("token-issuance")
+  const [proposals, setProposals] = useState(companyData.proposals)
+  useEffect(() => {
+    const savedProposals = localStorage.getItem("companyProposals")
+    if (savedProposals) {
+      setProposals(JSON.parse(savedProposals))
+    }
+  }, [])
+  
+  const addProposal = (newProposal: Proposal) => {
+    const updatedProposals = [...proposals, newProposal]
+    setProposals(updatedProposals)
+    localStorage.setItem("companyProposals", JSON.stringify(updatedProposals))
+  }
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -95,8 +118,8 @@ export default function DashboardPage() {
 
       <Tabs defaultValue="overview" onValueChange={setActiveTab}>
         <TabsList className="mb-6">
+        <TabsTrigger value="token-issuance">Token Issuance</TabsTrigger>
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="token-issuance">Token Issuance</TabsTrigger>
           <TabsTrigger value="dividends">Dividends</TabsTrigger>
           <TabsTrigger value="proposals">Governance</TabsTrigger>
           <TabsTrigger value="shareholders">Shareholders</TabsTrigger>
@@ -534,10 +557,38 @@ export default function DashboardPage() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button className="w-full">
-                    <Vote className="mr-2 h-4 w-4" />
-                    Create Proposal
-                  </Button>
+                <Button
+  className="w-full"
+  onClick={() => {
+    const titleInput = document.getElementById("proposal-title") as HTMLInputElement
+    const descriptionInput = document.getElementById("proposal-description") as HTMLTextAreaElement
+    const typeSelect = document.getElementById("proposal-type") as HTMLSelectElement
+    const endDateInput = document.getElementById("proposal-end-date") as HTMLInputElement
+
+    if (!titleInput || !descriptionInput || !typeSelect || !endDateInput) return
+
+    const newProposal = {
+      id: `PROP-${Math.floor(Math.random() * 1000).toString().padStart(3, "0")}`,
+      title: titleInput.value,
+      status: "Active",
+      endDate: endDateInput.value,
+      votesFor: 0,
+      votesAgainst: 0,
+      description: descriptionInput.value,
+    }
+
+    addProposal(newProposal)
+
+    titleInput.value = ""
+    descriptionInput.value = ""
+    typeSelect.value = ""
+    endDateInput.value = ""
+  }}
+>
+  <Vote className="mr-2 h-4 w-4" />
+  Create Proposal
+</Button>
+
                 </CardFooter>
               </Card>
             </div>
@@ -663,7 +714,7 @@ export default function DashboardPage() {
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <option value="all">All Shareholders</option>
-                    <option value="major">Major Shareholders (>1%)</option>
+                    <option value="major">Major Shareholders (&gt;1%)</option>
                     <option value="retail">Retail Investors</option>
                     <option value="institutional">Institutional Investors</option>
                   </select>

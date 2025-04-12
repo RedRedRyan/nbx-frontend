@@ -33,7 +33,7 @@ export default function RegisterPage() {
       case "institution":
         return "/institution-dashboard"
       case "company":
-        return "/company-dashboard"
+        return "/dashboard"
       case "regulator":
         return "/regulator-dashboard"
       default:

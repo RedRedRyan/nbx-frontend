@@ -363,7 +363,7 @@ export default function CompanyDetailPage({ params }: { params: { id: string } }
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Token Standard</span>
-                  <span>Hedera Token Service</span>
+                  <span>ERC 20</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Token Type</span>
@@ -372,7 +372,7 @@ export default function CompanyDetailPage({ params }: { params: { id: string } }
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Smart Contract</span>
                   <Button variant="outline" size="sm" className="h-7 text-xs">
-                    View on Explorer
+                    <a href="https://hashscan.io/testnet/contract/0xd120E0C278d1b2aeE35495F94187D61F5229eD33">View on Explorer</a>
                   </Button>
                 </div>
               </div>

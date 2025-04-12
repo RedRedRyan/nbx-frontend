@@ -67,6 +67,9 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "babel": "^5.8.23",
+    "babel-core": "^5.0.0",
+    "babel-loader": "^5.4.2",
     "postcss": "^8",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
