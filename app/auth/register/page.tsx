@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
-import { Building, ChevronRight, Shield, User, Users } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { Building, ChevronRight, Shield, User, Users, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -17,11 +17,132 @@ export default function RegisterPage() {
   const [step, setStep] = useState(1)
   const [selectedType, setSelectedType] = useState(userType)
 
+  const [isLoading, setIsLoading] = useState(false)
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+
+  // Form fields for investor/institution
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
+  const [email, setEmail] = useState("")
+  const [phone, setPhone] = useState("")
+
+  // Form fields for company
+  const [companyName, setCompanyName] = useState("")
+  const [registrationNumber, setRegistrationNumber] = useState("")
+  const [companyEmail, setCompanyEmail] = useState("")
+  const [companyPhone, setCompanyPhone] = useState("")
+  const [companyPassword, setCompanyPassword] = useState("")
+  const [companyConfirmPassword, setCompanyConfirmPassword] = useState("")
+
+  // Form fields for regulator
+  const [regulatorName, setRegulatorName] = useState("")
+  const [regulatorId, setRegulatorId] = useState("")
+  const [officialEmail, setOfficialEmail] = useState("")
+  const [regulatorPassword, setRegulatorPassword] = useState("")
+  const [regulatorConfirmPassword, setRegulatorConfirmPassword] = useState("")
+
+  const validateStep1 = () => {
+    // Step 1 just requires selecting an account type, which is always valid
+    return true
+  }
+
+  const validateStep2 = () => {
+    setError(null)
+
+    if (selectedType === "investor" || selectedType === "institution") {
+      if (!firstName.trim()) {
+        setError("First name is required")
+        return false
+      }
+      if (!lastName.trim()) {
+        setError("Last name is required")
+        return false
+      }
+      if (!username.trim()) {
+        setError("Username is required")
+        return false
+      }
+      if (!email.trim()) {
+        setError("Email is required")
+        return false
+      }
+      if (!phone.trim()) {
+        setError("Phone number is required")
+        return false
+      }
+      if (password.length < 8) {
+        setError("Password must be at least 8 characters long")
+        return false
+      }
+      if (password !== confirmPassword) {
+        setError("Passwords do not match")
+        return false
+      }
+    } else if (selectedType === "company") {
+      if (!companyName.trim()) {
+        setError("Company name is required")
+        return false
+      }
+      if (!registrationNumber.trim()) {
+        setError("Registration number is required")
+        return false
+      }
+      if (!companyEmail.trim()) {
+        setError("Company email is required")
+        return false
+      }
+      if (!companyPhone.trim()) {
+        setError("Company phone is required")
+        return false
+      }
+      if (companyPassword.length < 8) {
+        setError("Password must be at least 8 characters long")
+        return false
+      }
+      if (companyPassword !== companyConfirmPassword) {
+        setError("Passwords do not match")
+        return false
+      }
+    } else if (selectedType === "regulator") {
+      if (!regulatorName.trim()) {
+        setError("Regulatory body name is required")
+        return false
+      }
+      if (!regulatorId.trim()) {
+        setError("Regulator ID is required")
+        return false
+      }
+      if (!officialEmail.trim()) {
+        setError("Official email is required")
+        return false
+      }
+      if (regulatorPassword.length < 8) {
+        setError("Password must be at least 8 characters long")
+        return false
+      }
+      if (regulatorPassword !== regulatorConfirmPassword) {
+        setError("Passwords do not match")
+        return false
+      }
+    }
+
+    return true
+  }
+
   const handleNext = () => {
-    setStep(step + 1)
+    if (step === 1 && validateStep1()) {
+      setStep(2)
+    } else if (step === 2 && validateStep2()) {
+      setStep(3)
+    }
   }
 
   const handleBack = () => {
+    setError(null)
     setStep(step - 1)
   }
 
@@ -38,6 +159,47 @@ export default function RegisterPage() {
         return "/regulator-dashboard"
       default:
         return "/dashboard"
+    }
+  }
+
+  // Function to handle registration and wallet creation
+  const handleRegister = async () => {
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      // Import auth store dynamically to avoid SSR issues
+      const { default: useAuthStore } = await import("@/lib/auth/auth-store")
+      const register = useAuthStore.getState().register
+
+      // Get the appropriate username and password based on account type
+      let registrationUsername = username;
+      let registrationPassword = password;
+
+      if (selectedType === "company") {
+        // For company accounts, use company name as username and company password
+        registrationUsername = companyName.replace(/\s+/g, '').toLowerCase();
+        registrationPassword = companyPassword;
+      } else if (selectedType === "regulator") {
+        // For regulator accounts, use regulator ID as username and regulator password
+        registrationUsername = regulatorId.replace(/\s+/g, '').toLowerCase();
+        registrationPassword = regulatorPassword;
+      }
+
+      // Register with the selected account type
+      const success = await register(registrationUsername, registrationPassword, selectedType)
+
+      if (success) {
+        // Registration successful, redirect to the appropriate dashboard
+        router.push(getRedirectPath())
+      } else {
+        setError("Failed to create account. Username may already be taken.")
+      }
+    } catch (err) {
+      console.error("Registration error:", err)
+      setError("An error occurred during registration. Please try again.")
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -148,31 +310,86 @@ export default function RegisterPage() {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="first-name">First name</Label>
-                        <Input id="first-name" placeholder="John" />
+                        <Input 
+                          id="first-name" 
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
+                          placeholder="John" 
+                          required
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="last-name">Last name</Label>
-                        <Input id="last-name" placeholder="Doe" />
+                        <Input 
+                          id="last-name" 
+                          value={lastName}
+                          onChange={(e) => setLastName(e.target.value)}
+                          placeholder="Doe" 
+                          required
+                        />
                       </div>
                     </div>
                     <div className="space-y-2">
+                      <Label htmlFor="username">Username</Label>
+                      <Input 
+                        id="username" 
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Choose a unique username" 
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
-                      <Input id="email" type="email" placeholder="john.doe@example.com" />
+                      <Input 
+                        id="email" 
+                        type="email" 
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="john.doe@example.com" 
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="phone">Phone number</Label>
-                      <Input id="phone" type="tel" placeholder="+254 700 000000" />
+                      <Input 
+                        id="phone" 
+                        type="tel" 
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+254 700 000000" 
+                        required
+                      />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="password-step2">Password</Label>
-                        <Input id="password-step2" type="password" />
+                        <Input 
+                          id="password-step2" 
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="Min 8 characters"
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="confirm-password-step2">Confirm Password</Label>
-                        <Input id="confirm-password-step2" type="password" />
+                        <Input 
+                          id="confirm-password-step2" 
+                          type="password"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="Confirm password"
+                        />
                       </div>
                     </div>
+
+                    {error && (
+                      <div className="bg-destructive/15 text-destructive p-3 rounded-md flex items-center gap-2 text-sm">
+                        <AlertCircle className="h-4 w-4" />
+                        {error}
+                      </div>
+                    )}
                   </>
                 )}
 
@@ -180,28 +397,66 @@ export default function RegisterPage() {
                   <>
                     <div className="space-y-2">
                       <Label htmlFor="company-name">Company name</Label>
-                      <Input id="company-name" placeholder="Acme Inc." />
+                      <Input 
+                        id="company-name" 
+                        value={companyName}
+                        onChange={(e) => setCompanyName(e.target.value)}
+                        placeholder="Acme Inc." 
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="registration-number">Registration number</Label>
-                      <Input id="registration-number" placeholder="REG123456" />
+                      <Input 
+                        id="registration-number" 
+                        value={registrationNumber}
+                        onChange={(e) => setRegistrationNumber(e.target.value)}
+                        placeholder="REG123456" 
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="company-email">Company email</Label>
-                      <Input id="company-email" type="email" placeholder="info@acme.com" />
+                      <Input 
+                        id="company-email" 
+                        type="email" 
+                        value={companyEmail}
+                        onChange={(e) => setCompanyEmail(e.target.value)}
+                        placeholder="info@acme.com" 
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="company-phone">Company phone</Label>
-                      <Input id="company-phone" type="tel" placeholder="+254 700 000000" />
+                      <Input 
+                        id="company-phone" 
+                        type="tel" 
+                        value={companyPhone}
+                        onChange={(e) => setCompanyPhone(e.target.value)}
+                        placeholder="+254 700 000000" 
+                        required
+                      />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="company-password">Password</Label>
-                        <Input id="company-password" type="password" />
+                        <Input 
+                          id="company-password" 
+                          type="password"
+                          value={companyPassword}
+                          onChange={(e) => setCompanyPassword(e.target.value)}
+                          required
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="company-confirm-password">Confirm Password</Label>
-                        <Input id="company-confirm-password" type="password" />
+                        <Input 
+                          id="company-confirm-password" 
+                          type="password"
+                          value={companyConfirmPassword}
+                          onChange={(e) => setCompanyConfirmPassword(e.target.value)}
+                          required
+                        />
                       </div>
                     </div>
                   </>
@@ -211,24 +466,55 @@ export default function RegisterPage() {
                   <>
                     <div className="space-y-2">
                       <Label htmlFor="regulator-name">Regulatory body</Label>
-                      <Input id="regulator-name" placeholder="Capital Markets Authority" />
+                      <Input 
+                        id="regulator-name" 
+                        value={regulatorName}
+                        onChange={(e) => setRegulatorName(e.target.value)}
+                        placeholder="Capital Markets Authority" 
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="regulator-id">Regulator ID</Label>
-                      <Input id="regulator-id" placeholder="REG-AUTH-123" />
+                      <Input 
+                        id="regulator-id" 
+                        value={regulatorId}
+                        onChange={(e) => setRegulatorId(e.target.value)}
+                        placeholder="REG-AUTH-123" 
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="official-email">Official email</Label>
-                      <Input id="official-email" type="email" placeholder="official@regulator.gov" />
+                      <Input 
+                        id="official-email" 
+                        type="email" 
+                        value={officialEmail}
+                        onChange={(e) => setOfficialEmail(e.target.value)}
+                        placeholder="official@regulator.gov" 
+                        required
+                      />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
-                        <Input id="password" type="password" />
+                        <Label htmlFor="regulator-password">Password</Label>
+                        <Input 
+                          id="regulator-password" 
+                          type="password"
+                          value={regulatorPassword}
+                          onChange={(e) => setRegulatorPassword(e.target.value)}
+                          required
+                        />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="confirm-password">Confirm Password</Label>
-                        <Input id="confirm-password" type="password" />
+                        <Label htmlFor="regulator-confirm-password">Confirm Password</Label>
+                        <Input 
+                          id="regulator-confirm-password" 
+                          type="password"
+                          value={regulatorConfirmPassword}
+                          onChange={(e) => setRegulatorConfirmPassword(e.target.value)}
+                          required
+                        />
                       </div>
                     </div>
                   </>
@@ -435,9 +721,12 @@ export default function RegisterPage() {
               Continue <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (
-            <Link href={getRedirectPath()}>
-              <Button>Complete Registration</Button>
-            </Link>
+            <Button 
+              onClick={handleRegister} 
+              disabled={isLoading || (selectedType === "investor" && (!username || !password || !confirmPassword))}
+            >
+              {isLoading ? "Creating Account..." : "Complete Registration"}
+            </Button>
           )}
         </CardFooter>
       </Card>

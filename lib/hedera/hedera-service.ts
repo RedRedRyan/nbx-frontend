@@ -1,31 +1,27 @@
 // lib/hedera/hedera-service.ts
-import { HashConnect, HashConnectConnectionState, SessionData } from "hashconnect";
-import { AccountId, LedgerId } from "@hashgraph/sdk";
+import { AccountId } from "@hashgraph/sdk";
+import ApiService from "../api/api-service";
 
-const NETWORK = LedgerId.TESTNET;
-const APP_METADATA = {
-  name: "SME Stock Exchange",
-  description: "A tokenized stock exchange for Small and Medium Enterprises",
-  icons: ['/image.png'],
-  url:"localhost:3000"
-};
-
-const PROJECT_ID = process.env.NEXT_PUBLIC_HASHCONNECT_PROJECT_ID|| "c5b19adcab7d431cbe2c4c07e7356a4c";
+// Connection states for the non-custodial wallet
+enum ConnectionState {
+  Disconnected = "Disconnected",
+  Connected = "Connected"
+}
 
 class HederaService {
   private static instance: HederaService;
-  private hashConnect: HashConnect;
-  private pairingData: SessionData | null = null;
-  private state: HashConnectConnectionState = HashConnectConnectionState.Disconnected;
+  private apiService: ApiService;
+  private state: ConnectionState = ConnectionState.Disconnected;
   private accountId: string | null = null;
+  private username: string | null = null;
+  private accountType: string | null = null;
   private initialized = false;
-  
+
   private onAccountChangedCallbacks: ((accountId: string | null) => void)[] = [];
   private onConnectionStatusChangedCallbacks: ((isConnected: boolean) => void)[] = [];
 
   private constructor() {
-    if (!PROJECT_ID) throw new Error("HashConnect Project ID is required");
-    this.hashConnect = new HashConnect(NETWORK, PROJECT_ID, APP_METADATA, true);
+    this.apiService = ApiService.getInstance();
   }
 
   public static getInstance(): HederaService {
@@ -35,31 +31,7 @@ class HederaService {
     return HederaService.instance;
   }
 
-  private setupEvents() {
-    this.hashConnect.pairingEvent.on((pairingData) => {
-      this.pairingData = pairingData;
-      this.accountId = pairingData.accountIds[0];
-      console.log("Paired with account:", this.accountId);
-      
-      this.onAccountChangedCallbacks.forEach(cb => cb(this.accountId));
-      this.onConnectionStatusChangedCallbacks.forEach(cb => cb(true));
-    });
-
-    this.hashConnect.disconnectionEvent.on(() => {
-      this.pairingData = null;
-      this.accountId = null;
-      this.state = HashConnectConnectionState.Disconnected;
-      console.log("Wallet disconnected");
-      
-      this.onAccountChangedCallbacks.forEach(cb => cb(null));
-      this.onConnectionStatusChangedCallbacks.forEach(cb => cb(false));
-    });
-
-    this.hashConnect.connectionStatusChangeEvent.on((state) => {
-      this.state = state;
-      this.onConnectionStatusChangedCallbacks.forEach(cb => cb(this.isConnected()));
-    });
-  }
+  // No need for event setup with the API-based approach
 
   public onAccountChanged(callback: (accountId: string | null) => void): () => void {
     this.onAccountChangedCallbacks.push(callback);
@@ -77,73 +49,147 @@ class HederaService {
 
   public async init(): Promise<boolean> {
     if (this.initialized) return true;
-    
+
     try {
-      this.setupEvents();
-      await this.hashConnect.init();
-      
-      // Check if there are any connected accounts after initialization
-      const connectedAccounts = this.hashConnect.connectedAccountIds;
-      if (connectedAccounts && connectedAccounts.length > 0) {
-        // We have at least one connected account
-        this.accountId = connectedAccounts[0].toString();
-        this.state = HashConnectConnectionState.Paired;
-        
-        // Notify listeners of restored connection
-        this.onAccountChangedCallbacks.forEach(cb => cb(this.accountId));
-        this.onConnectionStatusChangedCallbacks.forEach(cb => cb(true));
+      // Check if there's a stored username and try to restore the session
+      const storedUsername = localStorage.getItem('username');
+      const storedAccountType = localStorage.getItem('accountType');
+      if (storedUsername) {
+        try {
+          const userData = await this.apiService.getUser(storedUsername);
+          this.username = storedUsername;
+          this.accountId = userData.hederaAccountId;
+          this.accountType = storedAccountType || userData.accountType || 'investor';
+          this.state = ConnectionState.Connected;
+
+          // Notify listeners of restored connection
+          this.onAccountChangedCallbacks.forEach(cb => cb(this.accountId));
+          this.onConnectionStatusChangedCallbacks.forEach(cb => cb(true));
+        } catch (error) {
+          console.error("Failed to restore session:", error);
+          // Clear stored data if restoration fails
+          localStorage.removeItem('username');
+          localStorage.removeItem('accountType');
+        }
       }
-      
+
       this.initialized = true;
       return true;
     } catch (error) {
-      console.error("HashConnect initialization failed:", error);
+      console.error("Initialization failed:", error);
       throw error;
     }
   }
 
   public isConnected(): boolean {
-    return this.state === HashConnectConnectionState.Connected || 
-           this.state === HashConnectConnectionState.Paired;
+    return this.state === ConnectionState.Connected;
   }
 
   public getAccountId(): string | null {
     return this.accountId;
   }
 
-  public async connectToWallet(): Promise<string | null> {
+  public getUsername(): string | null {
+    return this.username;
+  }
+
+  public getAccountType(): string | null {
+    return this.accountType;
+  }
+
+  /**
+   * Connect to a wallet by logging in with username and password
+   */
+  public async connectToWallet(username: string, password: string): Promise<string | null> {
     if (!this.initialized) await this.init();
-    if (!this.hashConnect) throw new Error("HashConnect not initialized");
-    
-    await this.hashConnect.openPairingModal("dark");
-    
-    return new Promise((resolve) => {
-      const handler = (pairingData: SessionData) => {
-        this.accountId = pairingData.accountIds[0];
-        resolve(this.accountId);
-        this.hashConnect.pairingEvent.off(handler);
-      };
-      
-      this.hashConnect.pairingEvent.on(handler);
-      setTimeout(() => {
-        this.hashConnect.pairingEvent.off(handler);
-        resolve(null);
-      }, 300000);
-    });
+
+    try {
+      const response = await this.apiService.login(username, password);
+      this.username = username;
+
+      // Get user details to retrieve the Hedera account ID
+      const userData = await this.apiService.getUser(username);
+      this.accountId = userData.hederaAccountId;
+      this.accountType = userData.accountType || 'investor';
+      this.state = ConnectionState.Connected;
+
+      // Store username and account type in localStorage for session persistence
+      localStorage.setItem('username', username);
+      localStorage.setItem('accountType', this.accountType);
+
+      // Notify listeners of connection
+      this.onAccountChangedCallbacks.forEach(cb => cb(this.accountId));
+      this.onConnectionStatusChangedCallbacks.forEach(cb => cb(true));
+
+      return this.accountId;
+    } catch (error) {
+      console.error("Login failed:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Create a new wallet by registering a new user
+   */
+  public async createWallet(username: string, password: string, accountType: string = 'investor'): Promise<string | null> {
+    if (!this.initialized) await this.init();
+
+    try {
+      const userData = await this.apiService.createUser(username, password, accountType);
+      this.username = username;
+      this.accountId = userData.hederaAccountId;
+      this.accountType = userData.accountType || accountType;
+      this.state = ConnectionState.Connected;
+
+      // Store username and account type in localStorage for session persistence
+      localStorage.setItem('username', username);
+      localStorage.setItem('accountType', this.accountType);
+
+      // Notify listeners of connection
+      this.onAccountChangedCallbacks.forEach(cb => cb(this.accountId));
+      this.onConnectionStatusChangedCallbacks.forEach(cb => cb(true));
+
+      return this.accountId;
+    } catch (error) {
+      console.error("Account creation failed:", error);
+      return null;
+    }
   }
 
   public async disconnect(): Promise<void> {
-    await this.hashConnect.disconnect();
+    this.username = null;
+    this.accountId = null;
+    this.accountType = null;
+    this.state = ConnectionState.Disconnected;
+
+    // Remove stored username and account type
+    localStorage.removeItem('username');
+    localStorage.removeItem('accountType');
+
+    // Notify listeners of disconnection
+    this.onAccountChangedCallbacks.forEach(cb => cb(null));
+    this.onConnectionStatusChangedCallbacks.forEach(cb => cb(false));
   }
 
-  public getSigner() {
-    if (!this.accountId || !this.pairingData) {
+  /**
+   * Sign a transaction using the backend API
+   */
+  public async signTransaction(transaction: string, password: string): Promise<any> {
+    if (!this.isConnected() || !this.username) {
       throw new Error("No account connected");
     }
-    const accountId = AccountId.fromString(this.accountId);
-    
-    // Looking at the API, getSigner only needs the AccountId
-    return this.hashConnect.getSigner(accountId);
+
+    try {
+      const response = await this.apiService.signTransaction(
+        this.username,
+        transaction,
+        password
+      );
+      return response.receipt;
+    } catch (error) {
+      console.error("Transaction signing failed:", error);
+      throw error;
+    }
   }
 }
 
