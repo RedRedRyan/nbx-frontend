@@ -28,7 +28,7 @@ export default function Home() {
                 </Link>
                 <Link href="/market">
                   <Button size="lg" variant="outline" className="w-full">
-                    Explore Market
+                    Explore Markets
                   </Button>
                 </Link>
               </div>
