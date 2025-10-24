@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 217 33% 17%; /* Deep navy blue */
+    --foreground: 150 25% 95%; /* Soft mint green */
+    --card: 220 30% 20%; /* Slightly lighter navy */
+    --card-foreground: 150 20% 90%; /* Very light mint green */
+    --popover: 217 33% 17%; /* Same as background */
+    --popover-foreground: 150 25% 95%; /* Soft mint green */
+    
+    --primary: 220 50% 40%; /* Vibrant navy blue */
+    --primary-foreground: 150 50% 95%; /* Bright mint green */
+    
+    --secondary: 220 25% 25%; /* Dark navy blue */
+    --secondary-foreground: 150 30% 90%; /* Light mint green */
+    
+    --muted: 220 20% 20%; /* Very dark navy */
+    --muted-foreground: 150 15% 70%; /* Muted mint green */
+    
+    --accent: 195 40% 35%; /* Ocean blue */
+    --accent-foreground: 150 40% 95%; /* Very pale mint green */
+    
+    --destructive: 0 70% 45%; /* Kept original red for contrast */
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 220 15% 30%; /* Navy blue border */
+    --input: 220 15% 30%; /* Navy blue input */
+    --ring: 195 50% 45%; /* Ocean blue ring */
+    
+    /* Adjusted chart colors to fit the navy-green theme */
+    --chart-1: 220 70% 50%; /* Deep blue */
+    --chart-2: 195 60% 45%; /* Ocean blue */
+    --chart-3: 150 50% 40%; /* Deep green */
+    --chart-4: 120 40% 50%; /* Forest green */
+    --chart-5: 180 50% 45%; /* Teal */
+    
+    --radius: 0.5rem;
+    
+    /* Sidebar colors in navy blue and green tones */
+    --sidebar-background: 220 30% 15%;
+    --sidebar-foreground: 150 20% 90%;
+    --sidebar-primary: 220 50% 40%;
+    --sidebar-primary-foreground: 150 50% 95%;
+    --sidebar-accent: 220 25% 20%;
+    --sidebar-accent-foreground: 150 30% 90%;
+    --sidebar-border: 220 15% 30%;
+    --sidebar-ring: 195 50% 45%;
+  }
+
+  .dark {
+    --background: 220 40% 10%; /* Almost black navy */
+    --foreground: 150 30% 95%; /* Bright mint green */
+    --card: 220 35% 15%; /* Dark navy */
+    --card-foreground: 150 25% 90%; /* Soft mint green */
+    --popover: 220 40% 10%; /* Same as background */
+    --popover-foreground: 150 30% 95%; /* Bright mint green */
+    
+    --primary: 220 60% 50%; /* Bright navy blue */
+    --primary-foreground: 150 60% 95%; /* Very bright mint green */
+    
+    --secondary: 220 30% 20%; /* Very dark navy */
+    --secondary-foreground: 150 35% 90%; /* Light mint green */
+    
+    --muted: 220 25% 15%; /* Nearly black navy */
+    --muted-foreground: 150 20% 70%; /* Muted mint green */
+    
+    --accent: 195 45% 40%; /* Deep ocean blue */
+    --accent-foreground: 150 45% 95%; /* Very pale mint green */
+    
+    --destructive: 0 70% 40%; /* Slightly darker red */
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 220 20% 25%; /* Dark navy border */
+    --input: 220 20% 25%; /* Dark navy input */
+    --ring: 195 55% 50%; /* Bright ocean blue ring */
+    
+    /* Dark mode chart colors */
+    --chart-1: 220 75% 55%; /* Bright blue */
+    --chart-2: 195 65% 50%; /* Vibrant ocean blue */
+    --chart-3: 150 55% 45%; /* Vibrant green */
+    --chart-4: 120 45% 55%; /* Bright forest green */
+    --chart-5: 180 55% 50%; /* Bright teal */
+    
+    /* Sidebar colors in dark navy and green tones */
+    --sidebar-background: 220 35% 10%;
+    --sidebar-foreground: 150 25% 95%;
+    --sidebar-primary: 220 55% 45%;
+    --sidebar-primary-foreground: 150 55% 95%;
+    --sidebar-accent: 220 30% 15%;
+    --sidebar-accent-foreground: 150 35% 90%;
+    --sidebar-border: 220 20% 25%;
+    --sidebar-ring: 195 55% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+  }
+}
